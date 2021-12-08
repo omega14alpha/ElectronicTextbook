@@ -1,16 +1,17 @@
 ﻿using ElectronicTextbook.EventsArgs;
+using ElectronicTextbook.Infrastructure.Interfaces;
 using System;
 using System.IO;
 using System.Text;
 
 namespace ElectronicTextbook.Infrastructure
 {
-    internal class TextFileReader
+    internal class TextFileReader : IFileReader
     {
         public event EventHandler<FileReaderEventArgs> WordIsCollected;
         public event EventHandler<FileReaderEventArgs> PunctuationCollected;
 
-        internal void FileParsing(string path)
+        public void FileParsing(string path)
         {
             StringBuilder builder = new StringBuilder();
             using StreamReader reader = new(new FileStream(path, FileMode.Open));

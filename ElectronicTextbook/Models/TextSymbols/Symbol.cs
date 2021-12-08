@@ -2,7 +2,7 @@
 
 namespace ElectronicTextbook.Models.TextSymbols
 {
-    internal abstract class Symbol : ITextElement
+    internal abstract class Symbol
     {
         protected string Value;
 

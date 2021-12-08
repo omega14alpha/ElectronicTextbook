@@ -1,4 +1,5 @@
 ﻿using ElectronicTextbook.EventsArgs;
+using ElectronicTextbook.Infrastructure.Interfaces;
 using ElectronicTextbook.Models.PieceOfText;
 using ElectronicTextbook.Models.TextSymbols;
 using ElectronicTextbook.Models.TextSymbols.LogicSymbols;
@@ -7,9 +8,9 @@ using System.Collections.Generic;
 
 namespace ElectronicTextbook.Infrastructure
 {
-    internal class IncomingTextAnalyzer
+    internal class IncomingTextAnalyzer : ITextAnalyzer
     {
-        private readonly TextFileReader _fileParser;
+        private readonly IFileReader _fileParser;
 
         private Text _text;
         private Sentence _sentence;
@@ -17,15 +18,26 @@ namespace ElectronicTextbook.Infrastructure
         private Dictionary<string, Symbol> _punctuations;
         private Dictionary<string, Symbol> _newLinePunctuations;
 
-        public IncomingTextAnalyzer()
+        public IncomingTextAnalyzer(IFileReader fileReader)
         {
-            _fileParser = new TextFileReader();
+            _fileParser = fileReader;
             _fileParser.WordIsCollected += SendWord;
             _fileParser.PunctuationCollected += SendPunctuation;
 
             _text = new Text();
             _sentence = new Sentence();
 
+            Init();
+        }
+
+        public Text Parsing(string filePath)
+        {
+            _fileParser.FileParsing(filePath);
+            return _text;
+        }
+
+        private void Init()
+        {
             _punctuations = new Dictionary<string, Symbol>()
             {
                 { ",", new Comma() }
@@ -33,28 +45,22 @@ namespace ElectronicTextbook.Infrastructure
 
             _newLinePunctuations = new Dictionary<string, Symbol>()
             {
-                    { ":", new Colon() },
-                    { ".", new Point() },
-                    { ";", new Semicolon() },
-                    { "?", new QuestionMark() },
-                    { "!", new ExclamationMark() },
-                    { "?!", new QuestionExclamation() },
-                    { "...", new Ellipsis() },
-                    { "!..", new ExclamationEllipsis() },
-                    { "!!!", new TripleExclamation() },
-                    { "?..", new QuestionEllipsis() }
+                { ":", new Colon() },
+                { ".", new Point() },
+                { ";", new Semicolon() },
+                { "?", new QuestionMark() },
+                { "!", new ExclamationMark() },
+                { "?!", new QuestionExclamation() },
+                { "...", new Ellipsis() },
+                { "!..", new ExclamationEllipsis() },
+                { "!!!", new TripleExclamation() },
+                { "?..", new QuestionEllipsis() }
             };
-        }
-
-        internal Text Parsing(string filePath)
-        {
-            _fileParser.FileParsing(filePath);
-            return _text;
         }
 
         private void SendWord(object sender, FileReaderEventArgs e)
         {
-            Word word = new Word();
+            ISentencePart<Symbol> word = new Word();
             foreach (var symbol in e.Data)
             {
                 word.Add(new Alphanumeric(symbol));
@@ -65,7 +71,7 @@ namespace ElectronicTextbook.Infrastructure
 
         private void SendPunctuation(object sender, FileReaderEventArgs e)
         {
-            PunctuationMark punctuationMark = new PunctuationMark();
+            ISentencePart<Symbol> punctuationMark = new PunctuationMark();
             if (_punctuations.TryGetValue(e.Data, out Symbol punctuation))
             {
                 punctuationMark.Add(punctuation);

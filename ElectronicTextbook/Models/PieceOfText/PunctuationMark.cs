@@ -1,14 +1,23 @@
 ﻿using ElectronicTextbook.Infrastructure.Interfaces;
+using ElectronicTextbook.Models.TextSymbols;
+using System;
 
 namespace ElectronicTextbook.Models.PieceOfText
 {
-    internal class PunctuationMark : ITextContainer, ITextElement
+    internal class PunctuationMark : ISentencePart<Symbol>
     {
-        private ITextElement _symbol;
+        private Symbol _symbol;
 
-        public void Add(ITextElement symbol)
+        public int Length => _symbol is null ? 0 : 1;
+
+        public void Add(Symbol markSymbol)
         {
-            _symbol = symbol;
+            if (markSymbol is null)
+            {
+                throw new ArgumentNullException(nameof(markSymbol), "parameter 'markSymbol' cannot be equals null!");
+            }
+
+            _symbol = markSymbol;
         }
 
         public override string ToString()
