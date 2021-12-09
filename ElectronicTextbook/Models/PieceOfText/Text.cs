@@ -28,31 +28,6 @@ namespace ElectronicTextbook.Models.PieceOfText
             _sentences.Add(sentence);
         }        
 
-        public void Remove(Sentence data)
-        {
-            if (data is null)
-            {
-                throw new ArgumentNullException(nameof(data), "parameter 'data' cannot be equals null!");
-            }
-
-            // _sentences[index].
-        }
-
-        public void Replace(IEnumerable<Sentence> oldDatas, Sentence newData)
-        {
-            if (oldDatas is null)
-            {
-                throw new ArgumentNullException(nameof(oldDatas), "parameter 'oldDatas' cannot be equals null!");
-            }
-
-            if (newData is null)
-            {
-                throw new ArgumentNullException(nameof(newData), "parameter 'newData' cannot be equals null!");
-            }
-
-            // _sentences[index].
-        }
-
         public override string ToString()
         {
             return (string.Join("", _sentences)).Trim();

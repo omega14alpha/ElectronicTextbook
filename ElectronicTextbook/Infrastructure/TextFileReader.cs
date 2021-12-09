@@ -9,7 +9,7 @@ namespace ElectronicTextbook.Infrastructure
     internal class TextFileReader : IFileReader
     {
         public event EventHandler<FileReaderEventArgs> WordIsCollected;
-        public event EventHandler<FileReaderEventArgs> PunctuationCollected;
+        public event EventHandler<FileReaderEventArgs> PunctuationIsCollected;
 
         public void FileParsing(string path)
         {
@@ -63,10 +63,10 @@ namespace ElectronicTextbook.Infrastructure
 
         private void SendPunctiation(string data)
         {
-            if (PunctuationCollected != null)
+            if (PunctuationIsCollected != null)
             {
                 var args = new FileReaderEventArgs(data);
-                PunctuationCollected.Invoke(this, args);
+                PunctuationIsCollected.Invoke(this, args);
             }
         }
     }

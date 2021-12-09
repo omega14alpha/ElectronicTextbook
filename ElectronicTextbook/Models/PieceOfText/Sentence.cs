@@ -30,38 +30,9 @@ namespace ElectronicTextbook.Models.PieceOfText
             _sentenceParts.Add(word);
         }
 
-        public void Remove(ISentencePart<Symbol> data)
-        {
-            if (data is null)
-            {
-                throw new ArgumentNullException(nameof(data), "parameter 'data' cannot be equals null!");
-            }
-
-            _sentenceParts.Remove(data);
-        }
-
-        public void Replace(IEnumerable<ISentencePart<Symbol>> oldDatas, ISentencePart<Symbol> newData)
-        {
-            if (oldDatas is null)
-            {
-                throw new ArgumentNullException(nameof(oldDatas), "parameter 'oldDatas' cannot be equals null!");
-            }
-
-            if (newData is null)
-            {
-                throw new ArgumentNullException(nameof(newData), "parameter 'newData' cannot be equals null!");
-            }
-
-            foreach (var item in oldDatas)
-            {
-                int index = _sentenceParts.IndexOf(item);
-                _sentenceParts[index] = newData;
-            }
-        }
-
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+             StringBuilder builder = new StringBuilder();
             foreach (var item in _sentenceParts)
             {
                 builder.Append(item is Word ? " " : "");

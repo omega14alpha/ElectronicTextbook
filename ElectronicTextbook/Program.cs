@@ -11,53 +11,79 @@ namespace ElectronicTextbook
         {
             string filePath = Environment.CurrentDirectory + "\\test.txt";
             _textbook = new Textbook(filePath);
-            Text text = _textbook.GetTextModel();
-            ShowData(text);
-
+            ShowText(_textbook.Text);
             WorkMenu();
         }
 
         private static void WorkMenu()
         {
-            Console.WriteLine("\nOptions menu:");
-            Console.WriteLine("\t1. Show all sentences in order of increasing the number of words.");
-            Console.WriteLine("\t2. Show all words of a given length in questioning sentences.");
-            Console.WriteLine("\t3. Delete all words of a given length that begin with a consonant letter.");
-            Console.WriteLine("\t4. Replace words of the specified length with the entered word in the selected sentence.");
-            Console.Write("\tPress any button to exit.\nYour choice? ");
-            int.TryParse(Console.ReadLine(), out int choise);
-
-            switch (choise)
+            while (true)
             {
-                case 1: 
-                    { 
-                        var result = _textbook.SortingByOrderOfIncreasingNumberOfWords();
-                        ShowData(result);
-                        break; 
-                    }
-                case 2: 
-                    {
-                        Console.Write("Enter length: ");
-                        int.TryParse(Console.ReadLine(), out int length);
-                        _textbook.GetAllWordsOfGivenLengthInQuestioningSentences(length);
+                Console.WriteLine("\nOptions menu:");
+                Console.WriteLine("\t1. Show all sentences in order of increasing the number of words.");
+                Console.WriteLine("\t2. Show all words of a given length in questioning sentences.");
+                Console.WriteLine("\t3. Delete all words of a given length that begin with a consonant letter.");
+                Console.WriteLine("\t4. Replace words of the specified length with the entered word in > '-' <.");
+                Console.Write("\tPress any button to exit.\n");
+                int choise = EnterNumber("Your choice? ");
 
-                        break; 
-                    }
-                case 3: { break; }
-                case 4: { break; }
-                default:
-                    {
-                        Environment.Exit(0);
-                        break;
-                    }
+                switch (choise)
+                {
+                    case 1: { SortText(); break; }
+                    case 2: { GetWords(); break; }      
+                    case 3: { DeleteWords(); break; }
+                    case 4: { ReplaceWords(); break; }
+                    default: 
+                        {
+                            Environment.Exit(0);
+                            break;
+                        }
+                }
             }
         }
 
-        private static void ShowData(Text text)
+        private static void SortText()
+        {
+            var result = _textbook.SortSentencesByWordsCount();
+            ShowAsColumn(result);
+        }
+
+        private static void GetWords()
+        {
+            int length = EnterNumber("Enter length: ");
+            var result = _textbook.GetWordsByLengthFromQuestions(length);
+            ShowAsColumn(result);
+        }
+
+        private static void DeleteWords()
+        {
+            int length = EnterNumber("Enter length: ");
+            var result = _textbook.DeleteWordsByLength(length);
+            ShowText(result);
+        }
+
+        private static void ReplaceWords()
+        {
+            int length = EnterNumber("Enter length: ");
+            string testStr = "TestWord";
+            var result = _textbook.ReplaceWordsInSentence(length, testStr);
+            ShowText(result);
+        }
+
+        private static int EnterNumber(string message)
+        {
+            Console.Write(message);
+            int.TryParse(Console.ReadLine(), out int length);
+            return length;
+        }
+
+        private static void ShowText(Text text) => Console.WriteLine(text);        
+
+        private static void ShowAsColumn(Text text)
         {
             foreach (var item in text)
             {
-                Console.Write(item);
+                Console.WriteLine(item);
             }
         }
     }

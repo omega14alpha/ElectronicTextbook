@@ -6,7 +6,8 @@ namespace ElectronicTextbook.Infrastructure.Interfaces
     internal interface IFileReader
     {
         event EventHandler<FileReaderEventArgs> WordIsCollected;
-        event EventHandler<FileReaderEventArgs> PunctuationCollected;
+
+        event EventHandler<FileReaderEventArgs> PunctuationIsCollected;
 
         void FileParsing(string path);
     }
