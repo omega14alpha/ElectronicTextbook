@@ -1,5 +1,4 @@
 ﻿using ElectronicTextbook.Infrastructure.Interfaces;
-using ElectronicTextbook.Models.TextSymbols;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,20 +6,21 @@ using System.Text;
 
 namespace ElectronicTextbook.Models.PieceOfText
 {
-    internal class Sentence : ITextContainer<ISentencePart<Symbol>>
+    internal class Sentence : ISentence
     {
-        private IList<ISentencePart<Symbol>> _sentenceParts;
-
-        public IEnumerator<ISentencePart<Symbol>> GetEnumerator() => _sentenceParts.GetEnumerator();
+        private ICollection<ISentencePart> _sentenceParts;
 
         public Sentence()
         {
-            _sentenceParts = new List<ISentencePart<Symbol>>();
+            _sentenceParts = new List<ISentencePart>();
         }
+        public int Count => _sentenceParts.Count;
+
+        public IEnumerator<ISentencePart> GetEnumerator() => _sentenceParts.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public void Add(ISentencePart<Symbol> word)
+        public void Add(ISentencePart word)
         {
             if (word is null)
             {

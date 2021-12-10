@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace ElectronicTextbook.Models.PieceOfText
 {
-    internal class Word : ISentencePart<Symbol>
+    internal class Word : ISentencePart
     {
         private ICollection<Symbol> _symbols;
 

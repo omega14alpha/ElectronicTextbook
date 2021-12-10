@@ -1,31 +1,33 @@
 ﻿using ElectronicTextbook.Infrastructure;
 using ElectronicTextbook.Infrastructure.Interfaces;
+using ElectronicTextbook.Models;
 using ElectronicTextbook.Models.PieceOfText;
 using System;
 using System.Linq;
 
 namespace ElectronicTextbook
 {
-    internal class Textbook
+    internal class Textbook : ITextbook
     {
-        private ITextDataConverter _textConverter;
-        private Text _text;
+        private readonly ITextDataConverter _textConverter;
+        private readonly IText _text;
 
-        public Text Text => _text;
+        public IText Text => _text;
 
-        public Textbook(string filePath)
+        public Textbook()
         {
-            _textConverter = new TextDataConverter(new TextFileReader());
+            string filePath = GetFileNameFromConfigurationFile();
+            _textConverter = new TextDataConverter(new StreamsReader());
             _text = _textConverter.GetTextFromFile(filePath);
         }
 
-        public Text SortSentencesByWordsCount()
+        public IText SortSentencesByWordsCount()
         {
             var result = _text.OrderBy(x => x.Where(x => x is Word).Count());
             return _textConverter.CreateTextFromSentences(result);
         }
 
-        public Text GetWordsByLengthFromQuestions(int wordLength)
+        public IText GetWordsByLengthFromQuestions(int wordLength)
         {
             if (wordLength <= 0)
             {
@@ -35,14 +37,14 @@ namespace ElectronicTextbook
             var result = from q in _text.Select(s => s)
                          where q.ToString().Contains('?')
                          from a in q
-                         where a.Length == wordLength
+                         where a is Word && a.Length == wordLength
                          group a by a.ToString() into x
                          select x.FirstOrDefault();
 
             return _textConverter.CreateTextFromWords(result);
         }
 
-        public Text DeleteWordsByLength(int length)
+        public IText DeleteWordsByLength(int length)
         {
             ConsonantChecker checker = new ConsonantChecker();
             var deletionModel = _text.Select(s => s.Select(x => x).Where(x => checker.IsStartWithConsonant(x.ToString()) && x.Length == length));
@@ -50,15 +52,22 @@ namespace ElectronicTextbook
             return _textConverter.CreateTextFromSentences(clearedSentences);
         }
 
-        public Text ReplaceWordsInSentence(int length, string newData)
-        {
-            var newWord = _textConverter.CreateWordFromString(newData);
+        public IText ReplaceWordsInSentence(int length, string newData)
+        {    
+            var substring = _textConverter.CreateTextFromString(newData).FirstOrDefault();
             var changeableSentence = GetTestSentence(length).ToList();
             for (int i = 0; i < changeableSentence.Count; i++)
             {
                 if (changeableSentence[i].Length == length)
                 {
-                    changeableSentence[i] = newWord;
+                    changeableSentence.RemoveAt(i);
+                    int index = i;
+
+                    foreach (var item in substring)
+                    {
+                        changeableSentence.Insert(index, item);
+                        ++index;
+                    }
                 }
             }
 
@@ -66,7 +75,14 @@ namespace ElectronicTextbook
             return _textConverter.CreateTextFromSentence(resultSentence);
         }
 
-        private Sentence GetTestSentence(int length)
+        private string GetFileNameFromConfigurationFile()
+        {
+            var configurationWorker = new XmlFileWorker<ConfigurationModel>();
+            var config = configurationWorker.ReadData();
+            return config.FilePath;
+        }
+
+        private ISentence GetTestSentence(int length)
         {
             var sentencesForTest = (from q in _text
                                     from a in q.Select(s => s)

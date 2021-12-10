@@ -1,21 +1,19 @@
-﻿using ElectronicTextbook.Models.PieceOfText;
-using ElectronicTextbook.Models.TextSymbols;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace ElectronicTextbook.Infrastructure.Interfaces
 {
     internal interface ITextDataConverter
     {
-        Text GetTextFromFile(string filePath);
+        IText GetTextFromFile(string filePath);
 
-        ISentencePart<Symbol> CreateWordFromString(string strWord);
+        ISentence CreateSentenceFromWords(IEnumerable<ISentencePart> words);
 
-        Sentence CreateSentenceFromWords(IEnumerable<ISentencePart<Symbol>> words);
+        IText CreateTextFromString(string data);
 
-        Text CreateTextFromSentences(IEnumerable<Sentence> sentences);
+        IText CreateTextFromSentences(IEnumerable<ISentence> sentences);
 
-        Text CreateTextFromSentence(Sentence sentence);
+        IText CreateTextFromSentence(ISentence sentence);
 
-        Text CreateTextFromWords(IEnumerable<ISentencePart<Symbol>> words);
+        IText CreateTextFromWords(IEnumerable<ISentencePart> words);
     }
 }

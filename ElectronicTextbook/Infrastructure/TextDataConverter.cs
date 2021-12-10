@@ -10,19 +10,20 @@ namespace ElectronicTextbook.Infrastructure
 {
     internal class TextDataConverter : ITextDataConverter
     {
-        private readonly IFileReader _fileParser;
+        private readonly IStreamReader _fileParser;
 
-        private Text _text;
-        private Sentence _sentence;
+        private IText _text;
+        private ISentence _sentence;
 
         private Dictionary<string, Symbol> _punctuations;
         private Dictionary<string, Symbol> _endSentencePunctuations;
 
-        public TextDataConverter(IFileReader fileReader)
+        public TextDataConverter(IStreamReader fileReader)
         {
             _fileParser = fileReader;
             _fileParser.WordIsCollected += SendWord;
             _fileParser.PunctuationIsCollected += SendPunctuation;
+            _fileParser.IsEnd += TextEnd;
 
             _text = new Text();
             _sentence = new Sentence();
@@ -30,24 +31,21 @@ namespace ElectronicTextbook.Infrastructure
             Init();
         }
 
-        public Text GetTextFromFile(string filePath)
+        public IText GetTextFromFile(string filePath)
         {
-            _fileParser.FileParsing(filePath);
+            _fileParser.GetDataFromFile(filePath);
             return _text;
         }
 
-        public ISentencePart<Symbol> CreateWordFromString(string strWord)
+        public IText CreateTextFromString(string data)
         {
-            var word = new Word();
-            foreach (var symbol in strWord)
-            {
-                word.Add(new Alphanumeric(symbol));
-            }
-
-            return word;
+            _text = new Text();
+            _sentence = new Sentence();
+            _fileParser.GetDataFromString(data);
+            return _text;
         }
 
-        public Sentence CreateSentenceFromWords(IEnumerable<ISentencePart<Symbol>> words)
+        public ISentence CreateSentenceFromWords(IEnumerable<ISentencePart> words)
         {
             _sentence = new Sentence();
             foreach (var item in words)
@@ -58,14 +56,7 @@ namespace ElectronicTextbook.Infrastructure
             return _sentence;
         }
 
-        public ISentencePart<Symbol> PunctuationMarkCreate(Symbol symbol)
-        {
-            var punctuationMark = new PunctuationMark();
-            punctuationMark.Add(symbol);
-            return punctuationMark;
-        }
-
-        public Text CreateTextFromSentences(IEnumerable<Sentence> sentences)
+        public IText CreateTextFromSentences(IEnumerable<ISentence> sentences)
         {
             _text = new Text();
             foreach (var sentence in sentences)
@@ -76,14 +67,14 @@ namespace ElectronicTextbook.Infrastructure
             return _text;
         }
 
-        public Text CreateTextFromSentence(Sentence sentence)
+        public IText CreateTextFromSentence(ISentence sentence)
         {
             _text = new Text();
             _text.Add(sentence);
             return _text;
         }
 
-        public Text CreateTextFromWords(IEnumerable<ISentencePart<Symbol>> words)
+        public IText CreateTextFromWords(IEnumerable<ISentencePart> words)
         {
             _text = new Text();
             foreach (var item in words)
@@ -118,24 +109,59 @@ namespace ElectronicTextbook.Infrastructure
             };
         }
 
+        private ISentencePart PunctuationMarkCreate(Symbol symbol)
+        {
+            var punctuationMark = new PunctuationMark();
+            punctuationMark.Add(symbol);
+            return punctuationMark;
+        }
+
         private void SendWord(object sender, FileReaderEventArgs e)
         {
-            var word = CreateWordFromString(e.Data);
-            _sentence.Add(word);
+            AddedWordToSentence(e.Data);
         }
 
         private void SendPunctuation(object sender, FileReaderEventArgs e)
         {
-            if (_punctuations.TryGetValue(e.Data, out Symbol punctuation))
+            AddedPunctuationMarkToSentence(e.Data);
+        }
+
+        private void TextEnd(object sender, FileReaderEventArgs e)
+        {
+            AddedWordToSentence(e.Data);
+            _text.Add(_sentence);
+            _sentence = new Sentence();
+        }
+
+        private void AddedWordToSentence(string newWord)
+        {
+            var word = CreateWordFromString(newWord);
+            _sentence.Add(word);
+        }
+
+        private void AddedPunctuationMarkToSentence(string newMark)
+        {
+            if (_punctuations.TryGetValue(newMark, out Symbol punctuation))
             {
                 _sentence.Add(PunctuationMarkCreate(punctuation));
             }
-            else if (_endSentencePunctuations.TryGetValue(e.Data, out Symbol newLinePunctuation))
+            else if (_endSentencePunctuations.TryGetValue(newMark, out Symbol newLinePunctuation))
             {
                 _sentence.Add(PunctuationMarkCreate(newLinePunctuation));
                 _text.Add(_sentence);
                 _sentence = new Sentence();
             }
+        }
+
+        private ISentencePart CreateWordFromString(string strWord)
+        {
+            var word = new Word();
+            foreach (var symbol in strWord)
+            {
+                word.Add(new Alphanumeric(symbol));
+            }
+
+            return word;
         }
     }
 }

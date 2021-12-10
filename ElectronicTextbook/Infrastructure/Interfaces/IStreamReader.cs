@@ -3,12 +3,16 @@ using System;
 
 namespace ElectronicTextbook.Infrastructure.Interfaces
 {
-    internal interface IFileReader
+    internal interface IStreamReader
     {
         event EventHandler<FileReaderEventArgs> WordIsCollected;
 
         event EventHandler<FileReaderEventArgs> PunctuationIsCollected;
 
-        void FileParsing(string path);
+        event EventHandler<FileReaderEventArgs> IsEnd;
+
+        void GetDataFromFile(string filePath);
+
+        void GetDataFromString(string strData);
     }
 }

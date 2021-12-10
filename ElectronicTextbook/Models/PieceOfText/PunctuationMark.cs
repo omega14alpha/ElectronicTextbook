@@ -4,7 +4,7 @@ using System;
 
 namespace ElectronicTextbook.Models.PieceOfText
 {
-    internal class PunctuationMark : ISentencePart<Symbol>
+    internal class PunctuationMark : ISentencePart
     {
         private Symbol _symbol;
 

@@ -6,15 +6,27 @@ using System.Text;
 
 namespace ElectronicTextbook.Infrastructure
 {
-    internal class TextFileReader : IFileReader
+    internal class StreamsReader : IStreamReader
     {
         public event EventHandler<FileReaderEventArgs> WordIsCollected;
         public event EventHandler<FileReaderEventArgs> PunctuationIsCollected;
+        public event EventHandler<FileReaderEventArgs> IsEnd;
 
-        public void FileParsing(string path)
+        public void GetDataFromFile(string filePath)
+        {
+            FileParsing(new FileStream(filePath, FileMode.Open));
+        }
+
+        public void GetDataFromString(string strData)
+        {
+            byte[] bytes = Encoding.UTF8.GetBytes(strData);
+            FileParsing(new MemoryStream(bytes));
+        }
+
+        private void FileParsing(Stream stream)
         {
             StringBuilder builder = new StringBuilder();
-            using StreamReader reader = new(new FileStream(path, FileMode.Open));
+            using StreamReader reader = new(stream);
             while (reader.Peek() >= 0)
             {
                 char currentSymbol = (char)reader.Read();
@@ -50,6 +62,8 @@ namespace ElectronicTextbook.Infrastructure
                     builder.Clear();
                 }
             }
+
+            SendEnd(builder.ToString());
         }
 
         private void SendWord(string data)
@@ -67,6 +81,15 @@ namespace ElectronicTextbook.Infrastructure
             {
                 var args = new FileReaderEventArgs(data);
                 PunctuationIsCollected.Invoke(this, args);
+            }
+        }
+
+        private void SendEnd(string data)
+        {
+            if (IsEnd != null)
+            {
+                var args = new FileReaderEventArgs(data);
+                IsEnd.Invoke(this, args);
             }
         }
     }

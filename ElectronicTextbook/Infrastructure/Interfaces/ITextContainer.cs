@@ -1,9 +1,0 @@
-﻿using System.Collections.Generic;
-
-namespace ElectronicTextbook.Infrastructure.Interfaces
-{
-    internal interface ITextContainer<T> : IEnumerable<T>
-    {
-        void Add(T t);
-    }
-}

@@ -1,18 +1,30 @@
-﻿using ElectronicTextbook.Models.PieceOfText;
+﻿using ElectronicTextbook.Infrastructure.Interfaces;
 using System;
+using System.Linq;
 
 namespace ElectronicTextbook
 {
     internal class Program
     {
-        private  static Textbook _textbook;
+        private  static ITextbook _textbook;
 
         static void Main(string[] args)
         {
-            string filePath = Environment.CurrentDirectory + "\\test.txt";
-            _textbook = new Textbook(filePath);
+            GetText();
             ShowText(_textbook.Text);
             WorkMenu();
+        }
+
+        private static void GetText()
+        {
+            try
+            {
+                _textbook = new Textbook();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }            
         }
 
         private static void WorkMenu()
@@ -23,7 +35,7 @@ namespace ElectronicTextbook
                 Console.WriteLine("\t1. Show all sentences in order of increasing the number of words.");
                 Console.WriteLine("\t2. Show all words of a given length in questioning sentences.");
                 Console.WriteLine("\t3. Delete all words of a given length that begin with a consonant letter.");
-                Console.WriteLine("\t4. Replace words of the specified length with the entered word in > '-' <.");
+                Console.WriteLine("\t4. Replace words of the specified length with the entered word in the selected sentence.");
                 Console.Write("\tPress any button to exit.\n");
                 int choise = EnterNumber("Your choice? ");
 
@@ -52,7 +64,14 @@ namespace ElectronicTextbook
         {
             int length = EnterNumber("Enter length: ");
             var result = _textbook.GetWordsByLengthFromQuestions(length);
-            ShowAsColumn(result);
+            if (result.Count() == 0)
+            {
+                Console.WriteLine("\nNothing found.");
+            }
+            else
+            {
+                ShowAsColumn(result);
+            }            
         }
 
         private static void DeleteWords()
@@ -65,7 +84,7 @@ namespace ElectronicTextbook
         private static void ReplaceWords()
         {
             int length = EnterNumber("Enter length: ");
-            string testStr = "TestWord";
+            string testStr = EnterNewWord();
             var result = _textbook.ReplaceWordsInSentence(length, testStr);
             ShowText(result);
         }
@@ -77,10 +96,18 @@ namespace ElectronicTextbook
             return length;
         }
 
-        private static void ShowText(Text text) => Console.WriteLine(text);        
-
-        private static void ShowAsColumn(Text text)
+        private static string EnterNewWord()
         {
+            Console.Write("Enter a new word (the line must not contain punctuation marks of the end of the sentence): ");
+            string newWord = Console.ReadLine();
+            return newWord;
+        }
+
+        private static void ShowText(IText text) => Console.WriteLine("\n" + text);        
+
+        private static void ShowAsColumn(IText text)
+        {
+            Console.WriteLine();
             foreach (var item in text)
             {
                 Console.WriteLine(item);

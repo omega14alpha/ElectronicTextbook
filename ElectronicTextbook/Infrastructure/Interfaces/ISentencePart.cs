@@ -1,9 +1,11 @@
-﻿namespace ElectronicTextbook.Infrastructure.Interfaces
+﻿using ElectronicTextbook.Models.TextSymbols;
+
+namespace ElectronicTextbook.Infrastructure.Interfaces
 {
-    internal interface ISentencePart<T>
+    internal interface ISentencePart
     {
         int Length { get; }
 
-        void Add(T t);
+        void Add(Symbol t);
     }
 }
