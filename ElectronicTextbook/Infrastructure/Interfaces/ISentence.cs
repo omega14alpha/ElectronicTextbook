@@ -2,10 +2,18 @@
 
 namespace ElectronicTextbook.Infrastructure.Interfaces
 {
-    internal interface ISentence : IEnumerable<ISentencePart>
+    internal interface ISentence : IEnumerable<ISentencePart>, IDisplayed
     {
         int Count { get; }
 
-        void Add(ISentencePart t);
+        ISentencePart LastSentencePart { get; }
+
+        void Add(ISentencePart sentencePart);
+
+        void AddNewAlphanumericSymbol(ISymbol alphanumericSymbol);
+
+        void AddNewPunctuationSymbol(ISymbol punctuationSymbol);
+
+        void NewSentencePart();
     }
 }

@@ -3,7 +3,7 @@
 namespace ElectronicTextbook.Models
 {
     [Serializable]
-    public class ConfigurationModel
+    public struct ConfigurationModel
     {
         public string FilePath { get; set; }
     }

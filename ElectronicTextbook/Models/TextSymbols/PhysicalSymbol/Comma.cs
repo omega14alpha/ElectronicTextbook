@@ -1,10 +1,11 @@
-﻿namespace ElectronicTextbook.Models.TextSymbols.PhysicalSymbol
+﻿using ElectronicTextbook.Infrastructure.Interfaces;
+
+namespace ElectronicTextbook.Models.TextSymbols.PhysicalSymbol
 {
-    internal class Comma : Symbol
+    internal struct Comma : ISymbol
     {
-        public Comma()
-        {
-            Value = ",";
-        }
+        private const char _value = ',';
+
+        public char Value => _value;
     }
 }

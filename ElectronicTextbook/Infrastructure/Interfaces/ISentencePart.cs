@@ -1,11 +1,13 @@
-﻿using ElectronicTextbook.Models.TextSymbols;
+﻿using ElectronicTextbook.Enums;
 
 namespace ElectronicTextbook.Infrastructure.Interfaces
 {
-    internal interface ISentencePart
+    internal interface ISentencePart : IDisplayed
     {
         int Length { get; }
 
-        void Add(Symbol t);
+        PartSentenceType PartSentenceType { get; set; }
+
+        void Add(ISymbol t);
     }
 }

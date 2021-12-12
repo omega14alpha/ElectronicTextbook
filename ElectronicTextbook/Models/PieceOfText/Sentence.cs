@@ -1,4 +1,5 @@
-﻿using ElectronicTextbook.Infrastructure.Interfaces;
+﻿using ElectronicTextbook.Enums;
+using ElectronicTextbook.Infrastructure.Interfaces;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,38 +9,71 @@ namespace ElectronicTextbook.Models.PieceOfText
 {
     internal class Sentence : ISentence
     {
-        private ICollection<ISentencePart> _sentenceParts;
+        private IList<ISentencePart> _sentenceParts;
 
-        public Sentence()
-        {
-            _sentenceParts = new List<ISentencePart>();
-        }
         public int Count => _sentenceParts.Count;
+
+        public ISentencePart LastSentencePart => _sentenceParts[Count - 1];
+
+        public string Value
+        {
+            get
+            {
+                StringBuilder builder = new StringBuilder();
+                foreach (var item in _sentenceParts)
+                {
+                    builder.Append(item.PartSentenceType == PartSentenceType.Word ? " " : "");
+                    builder.Append(item.Value);
+                }
+
+                return builder.ToString();
+            }
+        }
 
         public IEnumerator<ISentencePart> GetEnumerator() => _sentenceParts.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public void Add(ISentencePart word)
+        public Sentence()
         {
-            if (word is null)
-            {
-                throw new ArgumentNullException(nameof(word), "parameter 'word' cannot be equals null!");
-            }
-
-            _sentenceParts.Add(word);
+            _sentenceParts = new List<ISentencePart>();
+            NewSentencePart();
         }
 
-        public override string ToString()
+        public void Add(ISentencePart sentencePart)
         {
-             StringBuilder builder = new StringBuilder();
-            foreach (var item in _sentenceParts)
+            if (sentencePart is null)
             {
-                builder.Append(item is Word ? " " : "");
-                builder.Append(item.ToString());
+                throw new ArgumentNullException(nameof(sentencePart), "parameter 'sentencePart' cannot be equals null!");
             }
 
-            return builder.ToString();
+            _sentenceParts.Add(sentencePart);
+        }
+
+        public void AddNewAlphanumericSymbol(ISymbol alphanumericSymbol)
+        {
+            if (_sentenceParts[Count - 1].PartSentenceType != PartSentenceType.Word)
+            {
+                _sentenceParts[Count - 1].PartSentenceType = PartSentenceType.Word;
+            }
+
+            _sentenceParts[Count - 1].Add(alphanumericSymbol);
+        }
+
+        public void AddNewPunctuationSymbol(ISymbol punctuationSymbol)
+        {
+            if (_sentenceParts[Count - 1].PartSentenceType != PartSentenceType.PunctuationMark)
+            {
+                _sentenceParts.Add(new SentencePart());
+                _sentenceParts[Count - 1].PartSentenceType = PartSentenceType.PunctuationMark;
+            }
+
+            _sentenceParts[Count - 1].Add(punctuationSymbol);
+        }
+
+        public void NewSentencePart()
+        {
+            _sentenceParts.Add(new SentencePart());
         }
     }
 }

@@ -4,9 +4,9 @@ namespace ElectronicTextbook.EventsArgs
 {
     internal class FileReaderEventArgs : EventArgs
     {
-        public string Data { get; private set; }
+        public char Data { get; private set; }
 
-        public FileReaderEventArgs(string data)
+        public FileReaderEventArgs(char data)
         {
             Data = data;
         }

@@ -1,15 +1,19 @@
-﻿namespace ElectronicTextbook.Infrastructure.Interfaces
+﻿using System.Collections.Generic;
+
+namespace ElectronicTextbook.Infrastructure.Interfaces
 {
     internal interface ITextbook
     {
         IText Text { get; }
 
-        IText SortSentencesByWordsCount();
+        void GetTextFromFile(string filePath);
 
-        IText GetWordsByLengthFromQuestions(int wordLength);
+        IEnumerable<IDisplayed> SortSentencesByWordsCount();
 
-        IText DeleteWordsByLength(int length);
+        IEnumerable<ISentencePart> GetWordsByLengthFromQuestions(int wordLength);
 
-        IText ReplaceWordsInSentence(int length, string newData);
+        IEnumerable<ISentence> DeleteWordsByLength(int wordLength);
+
+        ISentence ReplaceWordsInSentence(int wordLength, string substring);
     }
 }

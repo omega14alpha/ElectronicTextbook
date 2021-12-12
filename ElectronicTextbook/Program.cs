@@ -1,4 +1,6 @@
-﻿using ElectronicTextbook.Infrastructure.Interfaces;
+﻿using ElectronicTextbook.Infrastructure;
+using ElectronicTextbook.Infrastructure.Interfaces;
+using ElectronicTextbook.Models;
 using System;
 using System.Linq;
 
@@ -6,32 +8,35 @@ namespace ElectronicTextbook
 {
     internal class Program
     {
-        private  static ITextbook _textbook;
+        private static ITextbook _textbook;
 
         static void Main(string[] args)
         {
             GetText();
-            ShowText(_textbook.Text);
+            Console.WriteLine("\n" + _textbook.Text.Value);
             WorkMenu();
         }
 
         private static void GetText()
         {
+            _textbook = new Textbook();
+            var configurationWorker = new XmlFileWorker<ConfigurationModel>();
             try
             {
-                _textbook = new Textbook();
+                var config = configurationWorker.ReadData();
+                _textbook.GetTextFromFile(config.FilePath);
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-            }            
+            }
         }
 
         private static void WorkMenu()
         {
             while (true)
             {
-                Console.WriteLine("\nOptions menu:");
+                Console.WriteLine("\n\nOptions menu:");
                 Console.WriteLine("\t1. Show all sentences in order of increasing the number of words.");
                 Console.WriteLine("\t2. Show all words of a given length in questioning sentences.");
                 Console.WriteLine("\t3. Delete all words of a given length that begin with a consonant letter.");
@@ -42,10 +47,10 @@ namespace ElectronicTextbook
                 switch (choise)
                 {
                     case 1: { SortText(); break; }
-                    case 2: { GetWords(); break; }      
+                    case 2: { GetWords(); break; }
                     case 3: { DeleteWords(); break; }
                     case 4: { ReplaceWords(); break; }
-                    default: 
+                    default:
                         {
                             Environment.Exit(0);
                             break;
@@ -57,28 +62,40 @@ namespace ElectronicTextbook
         private static void SortText()
         {
             var result = _textbook.SortSentencesByWordsCount();
-            ShowAsColumn(result);
+            Console.WriteLine();
+            foreach (var item in result)
+            {
+                Console.WriteLine(item.Value);
+            }
         }
 
         private static void GetWords()
         {
             int length = EnterNumber("Enter length: ");
             var result = _textbook.GetWordsByLengthFromQuestions(length);
-            if (result.Count() == 0)
+            if (result.Any())
             {
-                Console.WriteLine("\nNothing found.");
+                Console.WriteLine();
+                foreach (var item in result)
+                {
+                    Console.WriteLine(item.Value);
+                }
             }
             else
             {
-                ShowAsColumn(result);
-            }            
+                Console.WriteLine("\nNothing found.");
+            }
         }
 
         private static void DeleteWords()
         {
             int length = EnterNumber("Enter length: ");
             var result = _textbook.DeleteWordsByLength(length);
-            ShowText(result);
+            Console.WriteLine();
+            foreach (var item in result)
+            {
+                Console.Write(item.Value);
+            }
         }
 
         private static void ReplaceWords()
@@ -86,7 +103,7 @@ namespace ElectronicTextbook
             int length = EnterNumber("Enter length: ");
             string testStr = EnterNewWord();
             var result = _textbook.ReplaceWordsInSentence(length, testStr);
-            ShowText(result);
+            Console.WriteLine("\n" + result.Value);
         }
 
         private static int EnterNumber(string message)
@@ -99,19 +116,7 @@ namespace ElectronicTextbook
         private static string EnterNewWord()
         {
             Console.Write("Enter a new word (the line must not contain punctuation marks of the end of the sentence): ");
-            string newWord = Console.ReadLine();
-            return newWord;
-        }
-
-        private static void ShowText(IText text) => Console.WriteLine("\n" + text);        
-
-        private static void ShowAsColumn(IText text)
-        {
-            Console.WriteLine();
-            foreach (var item in text)
-            {
-                Console.WriteLine(item);
-            }
+            return Console.ReadLine();
         }
     }
 }

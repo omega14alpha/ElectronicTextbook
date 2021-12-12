@@ -1,17 +1,22 @@
-﻿using System;
+﻿using ElectronicTextbook.Infrastructure.Interfaces;
+using System;
 
 namespace ElectronicTextbook.Models.TextSymbols.PhysicalSymbol
 {
-    internal class Alphanumeric : Symbol
+    internal struct Alphanumeric : ISymbol
     {
-        public Alphanumeric(char symbol)
+        private readonly char _value;
+
+        public char Value => _value;
+
+        public Alphanumeric(char alphanumeric)
         {
-            if (!char.IsLetterOrDigit(symbol))
+            if (char.IsWhiteSpace(alphanumeric))
             {
-                throw new ArgumentException("The symbol must be letter or digit!");
+                throw new ArgumentException("The parameter 'alphanumeric' cannot be white space!");
             }
 
-            Value = symbol.ToString();
+            _value = alphanumeric;
         }
     }
 }

@@ -2,9 +2,9 @@
 
 namespace ElectronicTextbook.Infrastructure
 {
-    internal class ConsonantChecker
+    internal static class ConsonantChecker
     {
-        internal bool IsStartWithConsonant(string source)
+        internal static bool IsStartWithConsonant(string source)
         {
             if (!string.IsNullOrWhiteSpace(source))
             {

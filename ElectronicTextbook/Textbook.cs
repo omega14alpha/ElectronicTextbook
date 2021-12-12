@@ -1,8 +1,9 @@
-﻿using ElectronicTextbook.Infrastructure;
+﻿using ElectronicTextbook.Enums;
+using ElectronicTextbook.Infrastructure;
 using ElectronicTextbook.Infrastructure.Interfaces;
-using ElectronicTextbook.Models;
 using ElectronicTextbook.Models.PieceOfText;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace ElectronicTextbook
@@ -10,60 +11,62 @@ namespace ElectronicTextbook
     internal class Textbook : ITextbook
     {
         private readonly ITextDataConverter _textConverter;
-        private readonly IText _text;
+        private IText _text;
 
         public IText Text => _text;
 
         public Textbook()
         {
-            string filePath = GetFileNameFromConfigurationFile();
-            _textConverter = new TextDataConverter(new StreamsReader());
+            _textConverter = new TextDataConverter(new StreamParser(), new Text());
+        }
+
+        public void GetTextFromFile(string filePath)
+        {
             _text = _textConverter.GetTextFromFile(filePath);
         }
 
-        public IText SortSentencesByWordsCount()
+        public IEnumerable<IDisplayed> SortSentencesByWordsCount()
         {
-            var result = _text.OrderBy(x => x.Where(x => x is Word).Count());
-            return _textConverter.CreateTextFromSentences(result);
+            return _text
+                .OrderBy(x => x
+                .Where(x => x.PartSentenceType == PartSentenceType.Word)
+                .Count());
         }
 
-        public IText GetWordsByLengthFromQuestions(int wordLength)
+        public IEnumerable<ISentencePart> GetWordsByLengthFromQuestions(int wordLength)
         {
             if (wordLength <= 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(wordLength), "parameter 'wordLength' cannot be less or equels that 0!");
             }
 
-            var result = from q in _text.Select(s => s)
-                         where q.ToString().Contains('?')
-                         from a in q
-                         where a is Word && a.Length == wordLength
-                         group a by a.ToString() into x
-                         select x.FirstOrDefault();
-
-            return _textConverter.CreateTextFromWords(result);
+            return _text
+                .Where(s => s.Value.Contains('?'))
+                .Select(s => s.Where(x => x.PartSentenceType == PartSentenceType.Word && x.Length == wordLength)
+                .OrderBy(s => s.Value)
+                .FirstOrDefault());
         }
 
-        public IText DeleteWordsByLength(int length)
+        public IEnumerable<ISentence> DeleteWordsByLength(int wordLength)
         {
-            ConsonantChecker checker = new ConsonantChecker();
-            var deletionModel = _text.Select(s => s.Select(x => x).Where(x => checker.IsStartWithConsonant(x.ToString()) && x.Length == length));
-            var clearedSentences = _text.Zip(deletionModel, (f, s) => _textConverter.CreateSentenceFromWords(f.Except(s)));
-            return _textConverter.CreateTextFromSentences(clearedSentences);
+            var deletionModel = _text
+                .Select(s => s
+                .Where(x => ConsonantChecker.IsStartWithConsonant(x.Value) && x.Length == wordLength));
+            return _text.Zip(deletionModel, (f, s) => _textConverter.CreateSentenceFromWords(f.Except(s)));
         }
 
-        public IText ReplaceWordsInSentence(int length, string newData)
+        public ISentence ReplaceWordsInSentence(int wordLength, string substring)
         {    
-            var substring = _textConverter.CreateTextFromString(newData).FirstOrDefault();
-            var changeableSentence = GetTestSentence(length).ToList();
+            var tempStr = _textConverter.GetTextFromString(substring).FirstOrDefault();
+            var changeableSentence = GetTestSentence(wordLength).ToList();
             for (int i = 0; i < changeableSentence.Count; i++)
             {
-                if (changeableSentence[i].Length == length)
+                if (changeableSentence[i].Length == wordLength)
                 {
                     changeableSentence.RemoveAt(i);
                     int index = i;
 
-                    foreach (var item in substring)
+                    foreach (var item in tempStr)
                     {
                         changeableSentence.Insert(index, item);
                         ++index;
@@ -71,24 +74,16 @@ namespace ElectronicTextbook
                 }
             }
 
-            var resultSentence = _textConverter.CreateSentenceFromWords(changeableSentence);
-            return _textConverter.CreateTextFromSentence(resultSentence);
+            return _textConverter.CreateSentenceFromWords(changeableSentence);
         }
 
-        private string GetFileNameFromConfigurationFile()
+        private ISentence GetTestSentence(int wordLength)
         {
-            var configurationWorker = new XmlFileWorker<ConfigurationModel>();
-            var config = configurationWorker.ReadData();
-            return config.FilePath;
-        }
-
-        private ISentence GetTestSentence(int length)
-        {
-            var sentencesForTest = (from q in _text
-                                    from a in q.Select(s => s)
-                                    where a.Length == length
-                                    group q by q.ToString() into x
-                                    select x.FirstOrDefault()).ToList();
+            var sentencesForTest = _text
+                .SelectMany(a => a, (z, x) => new { Sentence = z, Part = x })
+                .Where(x => x.Part.PartSentenceType == PartSentenceType.Word && x.Part.Length == wordLength)
+                .Select(s => s.Sentence)
+                .ToList(); 
 
             Random random = new Random();
             var sentence = sentencesForTest[random.Next(sentencesForTest.Count)];
