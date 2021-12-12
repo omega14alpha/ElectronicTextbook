@@ -1,7 +1,7 @@
 ﻿using ElectronicTextbook.Infrastructure.Interfaces;
 using System;
 
-namespace ElectronicTextbook.Models.TextSymbols.PhysicalSymbol
+namespace ElectronicTextbook.Models.TextSymbols
 {
     internal struct Alphanumeric : ISymbol
     {

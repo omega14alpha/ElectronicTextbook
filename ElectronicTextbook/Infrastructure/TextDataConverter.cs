@@ -1,7 +1,7 @@
 ﻿using ElectronicTextbook.EventsArgs;
 using ElectronicTextbook.Infrastructure.Interfaces;
 using ElectronicTextbook.Infrastructure.PieceOfText;
-using ElectronicTextbook.Models.TextSymbols.PhysicalSymbol;
+using ElectronicTextbook.Models.TextSymbols;
 using System.Collections.Generic;
 
 namespace ElectronicTextbook.Infrastructure
@@ -15,9 +15,9 @@ namespace ElectronicTextbook.Infrastructure
         public TextDataConverter(IStreamParser fileReader, IText text)
         {
             _fileParser = fileReader;
-            _fileParser.IsAlphanumeric += AddSymbolToWord;
-            _fileParser.IsPunctuation += SendPunctuation;
-            _fileParser.IsSpaceOrEnd += End;
+            _fileParser.IsAlphanumeric += AddAlphanumericToSentene;
+            _fileParser.IsPunctuation += AddPunctuationToSentene;
+            _fileParser.IsSpaceOrEnd += SendSpaceOrEndText;
             _text = text;
         }
 
@@ -51,12 +51,12 @@ namespace ElectronicTextbook.Infrastructure
             _fileParser.Parsing(stream);
         }
 
-        private void AddSymbolToWord(object sender, FileReaderEventArgs e)
+        private void AddAlphanumericToSentene(object sender, FileReaderEventArgs e)
         {
             _text.AddNewAlphanumericSymbol(new Alphanumeric(e.Data));
         }
 
-        private void SendPunctuation(object sender, FileReaderEventArgs e)
+        private void AddPunctuationToSentene(object sender, FileReaderEventArgs e)
         {
             ISymbol punctuation = SymbolConvertor.Convert(e.Data);
             if (punctuation is not null)
@@ -65,7 +65,7 @@ namespace ElectronicTextbook.Infrastructure
             }
         }
 
-        private void End(object sender, FileReaderEventArgs e)
+        private void SendSpaceOrEndText(object sender, FileReaderEventArgs e)
         {
             _text.AddEndOrNewSentencePart();
         }

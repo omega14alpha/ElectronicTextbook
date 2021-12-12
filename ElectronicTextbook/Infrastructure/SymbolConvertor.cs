@@ -1,5 +1,5 @@
 ﻿using ElectronicTextbook.Infrastructure.Interfaces;
-using ElectronicTextbook.Models.TextSymbols.PhysicalSymbol;
+using ElectronicTextbook.Models.TextSymbols;
 
 namespace ElectronicTextbook.Infrastructure
 {

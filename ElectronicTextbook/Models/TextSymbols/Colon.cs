@@ -1,6 +1,6 @@
 ﻿using ElectronicTextbook.Infrastructure.Interfaces;
 
-namespace ElectronicTextbook.Models.TextSymbols.PhysicalSymbol
+namespace ElectronicTextbook.Models.TextSymbols
 {
     internal struct Colon : ISymbol
     {

@@ -33,8 +33,6 @@ namespace ElectronicTextbook.Infrastructure
 
                 SendSpaceOrEnd(currentSymbol);
             }
-
-            SendSpaceOrEnd(currentSymbol);
         }
 
         private void SendAlphanumeric(char data)
