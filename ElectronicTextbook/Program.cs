@@ -73,12 +73,12 @@ namespace ElectronicTextbook
         {
             int length = EnterNumber("Enter length: ");
             var result = _textbook.GetWordsByLengthFromQuestions(length);
-            if (result.Any())
+            if (result is not null && result.Any())
             {
                 Console.WriteLine();
                 foreach (var item in result)
                 {
-                    Console.WriteLine(item.Value);
+                    Console.WriteLine(item);
                 }
             }
             else

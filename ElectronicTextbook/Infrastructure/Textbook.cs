@@ -1,12 +1,11 @@
 ﻿using ElectronicTextbook.Enums;
-using ElectronicTextbook.Infrastructure;
 using ElectronicTextbook.Infrastructure.Interfaces;
-using ElectronicTextbook.Models.PieceOfText;
+using ElectronicTextbook.Infrastructure.PieceOfText;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ElectronicTextbook
+namespace ElectronicTextbook.Infrastructure
 {
     internal class Textbook : ITextbook
     {
@@ -33,7 +32,7 @@ namespace ElectronicTextbook
                 .Count());
         }
 
-        public IEnumerable<ISentencePart> GetWordsByLengthFromQuestions(int wordLength)
+        public IEnumerable<string> GetWordsByLengthFromQuestions(int wordLength)
         {
             if (wordLength <= 0)
             {
@@ -41,10 +40,10 @@ namespace ElectronicTextbook
             }
 
             return _text
-                .Where(s => s.Value.Contains('?'))
-                .Select(s => s.Where(x => x.PartSentenceType == PartSentenceType.Word && x.Length == wordLength)
-                .OrderBy(s => s.Value)
-                .FirstOrDefault());
+                .SelectMany(s => s, (z, x) => new { Sentence = z, Part = x })
+                .Where(x => x.Sentence.Value.Contains('?') && x.Part.PartSentenceType == PartSentenceType.Word && x.Part.Length == wordLength)
+                .GroupBy(s => s.Part.Value)
+                .Select(a => a.Key);
         }
 
         public IEnumerable<ISentence> DeleteWordsByLength(int wordLength)
@@ -56,7 +55,7 @@ namespace ElectronicTextbook
         }
 
         public ISentence ReplaceWordsInSentence(int wordLength, string substring)
-        {    
+        {
             var tempStr = _textConverter.GetTextFromString(substring).FirstOrDefault();
             var changeableSentence = GetTestSentence(wordLength).ToList();
             for (int i = 0; i < changeableSentence.Count; i++)
@@ -83,7 +82,7 @@ namespace ElectronicTextbook
                 .SelectMany(a => a, (z, x) => new { Sentence = z, Part = x })
                 .Where(x => x.Part.PartSentenceType == PartSentenceType.Word && x.Part.Length == wordLength)
                 .Select(s => s.Sentence)
-                .ToList(); 
+                .ToList();
 
             Random random = new Random();
             var sentence = sentencesForTest[random.Next(sentencesForTest.Count)];

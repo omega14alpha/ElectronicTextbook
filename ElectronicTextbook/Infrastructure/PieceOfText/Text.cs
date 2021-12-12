@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ElectronicTextbook.Models.PieceOfText
+namespace ElectronicTextbook.Infrastructure.PieceOfText
 {
     internal class Text : IText
     {
@@ -23,7 +23,7 @@ namespace ElectronicTextbook.Models.PieceOfText
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         public void AddNewAlphanumericSymbol(ISymbol alphanumericSymbol)
-        {    
+        {
             _sentences[Count - 1].AddNewAlphanumericSymbol(alphanumericSymbol);
         }
 

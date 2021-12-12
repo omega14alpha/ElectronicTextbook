@@ -1,6 +1,6 @@
 ﻿using ElectronicTextbook.EventsArgs;
 using ElectronicTextbook.Infrastructure.Interfaces;
-using ElectronicTextbook.Models.PieceOfText;
+using ElectronicTextbook.Infrastructure.PieceOfText;
 using ElectronicTextbook.Models.TextSymbols.PhysicalSymbol;
 using System.Collections.Generic;
 
@@ -12,8 +12,6 @@ namespace ElectronicTextbook.Infrastructure
 
         private IText _text;
 
-        private Dictionary<char, ISymbol> _punctuations;
-
         public TextDataConverter(IStreamParser fileReader, IText text)
         {
             _fileParser = fileReader;
@@ -21,7 +19,6 @@ namespace ElectronicTextbook.Infrastructure
             _fileParser.IsPunctuation += SendPunctuation;
             _fileParser.IsSpaceOrEnd += End;
             _text = text;
-            Init();
         }
 
         public IText GetTextFromFile(string filePath)
@@ -48,19 +45,6 @@ namespace ElectronicTextbook.Infrastructure
             return tempSentence;
         }
 
-        private void Init()
-        {
-            _punctuations = new Dictionary<char, ISymbol>()
-             {
-                { ',', new Comma() },
-                { ':', new Colon() },
-                { ';', new Semicolon() },
-                { '.', new Point() },
-                { '?', new QuestionMark() },
-                { '!', new ExclamationMark() }
-             };
-        }
-
         private void StartParsing(IToStreamConverter converter, string source)
         {
             var stream = converter.Convert(source);
@@ -74,7 +58,8 @@ namespace ElectronicTextbook.Infrastructure
 
         private void SendPunctuation(object sender, FileReaderEventArgs e)
         {
-            if (_punctuations.TryGetValue(e.Data, out ISymbol punctuation))
+            ISymbol punctuation = SymbolConvertor.Convert(e.Data);
+            if (punctuation is not null)
             {
                 _text.AddNewPunctuationSymbol(punctuation);
             }

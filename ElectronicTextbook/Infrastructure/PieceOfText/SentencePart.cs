@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ElectronicTextbook.Models.PieceOfText
+namespace ElectronicTextbook.Infrastructure.PieceOfText
 {
     internal class SentencePart : ISentencePart
     {
@@ -14,8 +14,8 @@ namespace ElectronicTextbook.Models.PieceOfText
 
         public int Length => _symbols.Count;
 
-        public string Value => string.Join("", _symbols.Select(s => s.Value));           
-        
+        public string Value => string.Join("", _symbols.Select(s => s.Value));
+
         public PartSentenceType PartSentenceType
         {
             get => _partSentenceType;

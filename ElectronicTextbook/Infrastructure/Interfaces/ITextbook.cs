@@ -10,7 +10,7 @@ namespace ElectronicTextbook.Infrastructure.Interfaces
 
         IEnumerable<IDisplayed> SortSentencesByWordsCount();
 
-        IEnumerable<ISentencePart> GetWordsByLengthFromQuestions(int wordLength);
+        IEnumerable<string> GetWordsByLengthFromQuestions(int wordLength);
 
         IEnumerable<ISentence> DeleteWordsByLength(int wordLength);
 
