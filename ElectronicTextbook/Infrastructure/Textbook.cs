@@ -56,7 +56,7 @@ namespace ElectronicTextbook.Infrastructure
 
         public ISentence ReplaceWordsInSentence(int wordLength, string substring)
         {
-            var tempStr = _textConverter.GetTextFromString(substring);
+            var tempStr = _textConverter.GetTextFromString(substring).FirstOrDefault();
             var changeableSentence = GetTestSentence(wordLength).ToList();
             for (int i = 0; i < changeableSentence.Count; i++)
             {

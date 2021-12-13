@@ -58,7 +58,7 @@ namespace ElectronicTextbook.Infrastructure
 
         private void AddPunctuationToSentene(object sender, FileReaderEventArgs e)
         {
-            ISymbol punctuation = SymbolConvertor.Convert(e.Data);
+            ISymbol punctuation = SymbolConvertor(e.Data);
             if (punctuation is not null)
             {
                 _text.AddNewPunctuationSymbol(punctuation);
@@ -68,6 +68,20 @@ namespace ElectronicTextbook.Infrastructure
         private void SendSpaceOrEndText(object sender, FileReaderEventArgs e)
         {
             _text.AddEndOrNewSentencePart();
+        }
+
+        private ISymbol SymbolConvertor(char ch)
+        {
+            return ch switch
+            {
+                ',' => new Comma(),
+                ':' => new Colon(),
+                ';' => new Semicolon(),
+                '.' => new Point(),
+                '!' => new QuestionMark(),
+                '?' => new ExclamationMark(),
+                _ => null
+            };
         }
     }
 }
